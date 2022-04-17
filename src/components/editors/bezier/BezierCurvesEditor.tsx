@@ -28,10 +28,10 @@ interface BezierCurvesEditorState {
     curve: number,
     hover: number,
     down: number,
+    bezier: PiecewiseBezier,
 }
 
-export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorProps, BezierCurvesEditorState> {
-
+export class BezierCurvesEditor extends React.Component<BezierCurvesEditorProps, BezierCurvesEditorState> {
 
     static defaultP = {
         padding: [0, 0, 0, 0],
@@ -44,6 +44,7 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
             curve: -1,
             down: -1,
             hover: -1,
+            bezier: new PiecewiseBezier(this.props.value.functions),
         };
     }
 
@@ -71,14 +72,20 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
     };
 
     onDownLeave = (e: React.MouseEvent) => {
-        if (this.state.down) {
+
+        if (this.state.down >= 0)
+        {
             this.onDownMove(e);
             this.setState({
                 down: -1,
                 hover: -1
             });
+
+            if (this.props.onChange)
+                this.props.onChange(this.state.bezier);
         }
     };
+
     onDownMove = (e: React.MouseEvent) => {
         if (this.state.down >= 0) {
             e.preventDefault();
@@ -123,18 +130,20 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
                 curve.p[2] = (this.props.height - y) / this.props.height;
                 value.setFunction(curveIndex, curve.clone());
             }
-            //value[i] = this.inversex(x);
-            //value[i + 1] = this.inversey(y);
-            if (this.props.onChange)
-                this.props.onChange(value);
+
+            this.setState({
+                bezier: value,
+            });
         }
     };
 
     onDownUp = () => {
-        // this.onDownMove(e);
         this.setState({
             down: -1,
         });
+
+        if (this.props.onChange)
+            this.props.onChange(this.state.bezier);
     };
 
 
@@ -180,14 +189,16 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
         const {
             curve: curveIndex,
             down,
-            hover
+            hover,
+            bezier,
         } = this.state;
 
         const curves = [];
-        for (let i = 0; i < value.numOfFunctions; i ++) {
-            const x1 = value.getStartX(i);
-            const x2 = value.getEndX(i);
-            const curve = value.getFunction(i);
+        for (let i = 0; i < bezier.numOfFunctions; i ++) {
+
+            const x1 = bezier.getStartX(i);
+            const x2 = bezier.getEndX(i);
+            const curve = bezier.getFunction(i);
             const slope0 = curve.getSlope(0);
             const slope1 = curve.getSlope(1);
 

@@ -119,7 +119,7 @@ export class GeneratorEditor extends React.PureComponent<GeneratorEditorProps, G
     };
 
     changeCurve = (x: PiecewiseBezier) => {
-        this.props.onChange(new PiecewiseBezier(x.functions));
+        this.props.onChange(x);
     }
 
     getEditorType(generator: GenericGenerator): EditorType {
@@ -176,7 +176,7 @@ export class GeneratorEditor extends React.PureComponent<GeneratorEditorProps, G
                 break;
             case "piecewiseBezier":
                 editor = <React.Fragment>
-                    <BezierCurvesEditor height={40} width={240} value={(value as PiecewiseBezier)} onChange={this.changeCurve}/>
+                    <BezierCurvesEditor height={80} width={240} value={(value as PiecewiseBezier)} onChange={this.changeCurve}/>
                 </React.Fragment>;
                 break;
             case "colorRange":
