@@ -31,7 +31,7 @@ interface BezierCurvesEditorState {
     bezier: PiecewiseBezier,
 }
 
-export class BezierCurvesEditor extends React.Component<BezierCurvesEditorProps, BezierCurvesEditorState> {
+export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorProps, BezierCurvesEditorState> {
 
     static defaultP = {
         padding: [0, 0, 0, 0],
@@ -46,9 +46,28 @@ export class BezierCurvesEditor extends React.Component<BezierCurvesEditorProps,
             hover: -1,
             bezier: new PiecewiseBezier(this.props.value.functions),
         };
+        this.scaleHeight();
     }
 
     rootRef = createRef<HTMLDivElement>();
+
+    private _scaledCurves:any;
+    private _heightScaler = 1.0;
+
+    componentDidUpdate = (prevProps:any) => {
+
+        if(prevProps.value !== this.props.value)
+        {
+            //console.log("componentDidUpdate");
+            this.scaleHeight();
+
+            const newBezier = new PiecewiseBezier(this._scaledCurves);
+
+            this.setState({
+                bezier: newBezier,
+            });
+        }
+    }
 
     positionForEvent = (e: React.MouseEvent) => {
         if (this.rootRef.current) {
@@ -71,6 +90,72 @@ export class BezierCurvesEditor extends React.Component<BezierCurvesEditorProps,
     inversey = (y:number) => {
     };
 
+    scaleHeight = () => {
+
+        //console.log("scaleHeight");
+
+        let maxHeight = 0;
+
+        const scaledBezier = new PiecewiseBezier(this.props.value.functions);
+
+        //console.log("before scaling:",JSON.stringify(scaledBezier))
+
+        scaledBezier.functions.forEach(curve => {
+            curve[0]['p'].forEach(y => {
+                if(y > maxHeight) {
+                    maxHeight = y;
+                }
+            })
+        })
+
+        const roundedMax = Math.floor(maxHeight);
+        const roundedMaxStr = roundedMax.toString();
+        const numWholeDigits = roundedMaxStr.length;
+
+        this._heightScaler = 1.0;
+        
+        if(roundedMax > 0)
+        {
+            const firstDigit = parseInt(roundedMaxStr.charAt(0));
+            let maxRangeStr = (firstDigit+1).toString();
+            maxRangeStr = maxRangeStr.padEnd(numWholeDigits + maxRangeStr.length - 1, "0");
+            this._heightScaler = parseFloat(maxRangeStr); 
+        }
+
+        for (let i = 0; i < scaledBezier.numOfFunctions; i++)
+        {
+            const curve = scaledBezier.getFunction(i);
+            curve.p = curve.p.map(y => y/this._heightScaler);
+            scaledBezier.setFunction(i, curve.clone());
+        }
+
+        //console.log("after scaling:",JSON.stringify(scaledBezier))
+
+        this._scaledCurves = scaledBezier.functions;
+    };
+
+    onChange = () => {
+
+        if (this.props.onChange)
+        {
+            //console.log("onChange");
+
+            const unscaledBezier = new PiecewiseBezier(this.state.bezier.functions);
+            //console.log("before unscaling:",JSON.stringify(unscaledBezier))
+
+            for (let i = 0; i < unscaledBezier.numOfFunctions; i++)
+            {
+                const curve = unscaledBezier.getFunction(i);
+                curve.p = curve.p.map(y => y*this._heightScaler);
+                unscaledBezier.setFunction(i, curve.clone());
+            }
+
+            //console.log("after unscaling:",JSON.stringify(unscaledBezier))
+
+            this.props.onChange(unscaledBezier);
+        }
+    };
+
     onDownLeave = (e: React.MouseEvent) => {
 
         if (this.state.down >= 0)
@@ -81,8 +166,7 @@ export class BezierCurvesEditor extends React.Component<BezierCurvesEditorProps,
                 hover: -1
             });
 
-            if (this.props.onChange)
-                this.props.onChange(this.state.bezier);
+            this.onChange();
         }
     };
 
@@ -90,7 +174,7 @@ export class BezierCurvesEditor extends React.Component<BezierCurvesEditorProps,
         if (this.state.down >= 0) {
             e.preventDefault();
             const [x, y] = this.positionForEvent(e);
-            const value = new PiecewiseBezier(this.props.value.functions);
+            const value = new PiecewiseBezier(this._scaledCurves);
 
             const valueX = x / this.props.width;
             const curveIndex = this.state.curve;
@@ -131,6 +215,8 @@ export class BezierCurvesEditor extends React.Component<BezierCurvesEditorProps,
                 value.setFunction(curveIndex, curve.clone());
             }
 
+            //console.log(value);
+
             this.setState({
                 bezier: value,
             });
@@ -142,8 +228,7 @@ export class BezierCurvesEditor extends React.Component<BezierCurvesEditorProps,
             down: -1,
         });
 
-        if (this.props.onChange)
-            this.props.onChange(this.state.bezier);
+        this.onChange();
     };
 
 
@@ -177,7 +262,6 @@ export class BezierCurvesEditor extends React.Component<BezierCurvesEditorProps,
         const {
             width,
             height,
-            value,
             curveWidth = 1,
             curveColor = "#000",
             handleRadius = BezierCurvesEditor.defaultP.handleRadius,
