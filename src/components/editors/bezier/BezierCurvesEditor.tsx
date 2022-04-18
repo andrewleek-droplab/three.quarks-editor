@@ -356,7 +356,7 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
                     />
                 </g>);
         }
-        return <div ref={this.rootRef}
+        return <div style={{'background':'#eee'}} ref={this.rootRef}
                     onMouseMove={this.onDownMove}
                     onMouseUp={this.onDownUp}
                     onMouseLeave={this.onDownLeave}>
