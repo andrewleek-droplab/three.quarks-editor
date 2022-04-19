@@ -2,6 +2,7 @@ import * as React from "react";
 import {CurveComponent} from "./CurveComponent";
 import {PiecewiseBezier} from "three.quarks";
 import {HandleComponent} from "./HandleComponent";
+import {ScaleComponent} from "./ScaleComponent";
 import {createRef} from "react";
 
 interface BezierCurvesEditorProps {
@@ -29,6 +30,7 @@ interface BezierCurvesEditorState {
     hover: number,
     down: number,
     bezier: PiecewiseBezier,
+    heightScaler: number,
 }
 
 export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorProps, BezierCurvesEditorState> {
@@ -45,8 +47,8 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
             down: -1,
             hover: -1,
             bezier: new PiecewiseBezier(this.props.value.functions),
+            heightScaler: 1.0,
         };
-        this.scaleHeight();
     }
 
     rootRef = createRef<HTMLDivElement>();
@@ -67,6 +69,10 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
                 bezier: newBezier,
             });
         }
+    }
+
+    componentWillMount = () => {
+        this.scaleHeight();
     }
 
     positionForEvent = (e: React.MouseEvent) => {
@@ -128,6 +134,10 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
             curve.p = curve.p.map(y => y/this._heightScaler);
             scaledBezier.setFunction(i, curve.clone());
         }
+
+        this.setState({
+            heightScaler: this._heightScaler,
+        });
 
         //console.log("after scaling:",JSON.stringify(scaledBezier))
 
@@ -275,6 +285,7 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
             down,
             hover,
             bezier,
+            heightScaler,
         } = this.state;
 
         const curves = [];
@@ -361,6 +372,7 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
                     onMouseUp={this.onDownUp}
                     onMouseLeave={this.onDownLeave}>
             <svg width={width} height={height}>
+                <ScaleComponent xFrom={0} xTo={width} yFrom={2} yTo={2} lineColor={"#000"} lineWidth={1} scale={heightScaler.toString()}/>
                 {curves}
             </svg>
         </div>;
