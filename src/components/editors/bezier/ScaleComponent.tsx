@@ -7,7 +7,6 @@ export interface ScaleProps {
     yFrom: number;
     xTo: number;
     yTo: number;
-    scale: string;
 }
 
 export class ScaleComponent extends React.Component<ScaleProps> {
@@ -20,12 +19,10 @@ export class ScaleComponent extends React.Component<ScaleProps> {
             yFrom,
             xTo,
             yTo,
-            scale,
         } = this.props;
 
         return (
-            <g key='scale'>
-                <text x={xFrom+1} y={yFrom+15}>{scale}</text>
+            <g key='scale-line'>
                 <line 
                     x1={xFrom}
                     y1={yFrom}

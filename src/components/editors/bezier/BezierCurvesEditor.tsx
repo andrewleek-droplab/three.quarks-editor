@@ -367,14 +367,18 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
                     />
                 </g>);
         }
-        return <div style={{'background':'#eee'}} ref={this.rootRef}
+        return <div style={{display:'flex', margin:'15px 10px'}} ref={this.rootRef}
                     onMouseMove={this.onDownMove}
                     onMouseUp={this.onDownUp}
                     onMouseLeave={this.onDownLeave}>
-            <svg width={width} height={height}>
-                <ScaleComponent xFrom={0} xTo={width} yFrom={0} yTo={0} lineColor={"#000"} lineWidth={1} scale={heightScaler.toString()}/>
-                <ScaleComponent xFrom={0} xTo={width} yFrom={height/2} yTo={height/2} lineColor={"#000"} lineWidth={1} scale={(heightScaler/2).toString()}/>
+            <div style={{display:'flex', flexDirection:'column', justifyContent:'space-between', paddingRight:'10px', textAlign:'right', fontSize:'14px'}}>
+                <div style={{transform:'translateY(-50%)'}}>{heightScaler}</div>
+                <div>{heightScaler/2}</div>
+                <div style={{transform:'translateY(50%)'}}>{0}</div>
+            </div>
+            <svg width={width} height={height} style={{background:'#eee', borderBottom:'black 1px solid', borderTop:'black 1px solid'}}>
                 {curves}
+                <ScaleComponent xFrom={0} xTo={width} yFrom={height/2} yTo={height/2} lineColor={"#000"} lineWidth={0.2}/>
             </svg>
         </div>;
     }
