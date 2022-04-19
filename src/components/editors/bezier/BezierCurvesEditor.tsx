@@ -372,7 +372,8 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
                     onMouseUp={this.onDownUp}
                     onMouseLeave={this.onDownLeave}>
             <svg width={width} height={height}>
-                <ScaleComponent xFrom={0} xTo={width} yFrom={2} yTo={2} lineColor={"#000"} lineWidth={1} scale={heightScaler.toString()}/>
+                <ScaleComponent xFrom={0} xTo={width} yFrom={0} yTo={0} lineColor={"#000"} lineWidth={1} scale={heightScaler.toString()}/>
+                <ScaleComponent xFrom={0} xTo={width} yFrom={height/2} yTo={height/2} lineColor={"#000"} lineWidth={1} scale={(heightScaler/2).toString()}/>
                 {curves}
             </svg>
         </div>;
