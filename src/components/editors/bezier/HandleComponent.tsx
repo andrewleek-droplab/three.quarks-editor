@@ -78,6 +78,7 @@ export class HandleComponent extends TransformComponent<HandleProps> {
 
         return <g>
             <line
+                style={{pointerEvents:'none'}}
                 stroke={handleColor}
                 strokeWidth={hover||down ? 1 + handleStroke : handleStroke}
                 x1={cxs}

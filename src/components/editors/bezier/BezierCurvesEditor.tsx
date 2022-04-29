@@ -51,7 +51,7 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
         };
     }
 
-    rootRef = createRef<HTMLDivElement>();
+    rootRef = createRef<SVGSVGElement>();
 
     private _scaledCurves:any;
     private _heightScaler = 1.0;
@@ -367,7 +367,7 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
                     />
                 </g>);
         }
-        return <div style={{display:'flex', margin:'15px 10px'}} ref={this.rootRef}
+        return <div style={{display:'flex', margin:'15px 10px'}}
                     onMouseMove={this.onDownMove}
                     onMouseUp={this.onDownUp}
                     onMouseLeave={this.onDownLeave}>
@@ -376,7 +376,7 @@ export class BezierCurvesEditor extends React.PureComponent<BezierCurvesEditorPr
                 <div>{heightScaler/2}</div>
                 <div style={{transform:'translateY(50%)'}}>{0}</div>
             </div>
-            <svg width={width} height={height} style={{background:'#eee', borderBottom:'black 1px solid', borderTop:'black 1px solid'}}>
+            <svg ref={this.rootRef} width={width} height={height} style={{background:'#eee', borderBottom:'black 1px solid', borderTop:'black 1px solid'}}>
                 {curves}
                 <ScaleComponent xFrom={0} xTo={width} yFrom={height/2} yTo={height/2} lineColor={"#000"} lineWidth={0.2}/>
             </svg>
